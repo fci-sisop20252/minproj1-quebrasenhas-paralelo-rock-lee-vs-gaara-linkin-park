@@ -67,7 +67,11 @@ int main(int argc, char *argv[]) {
     // Se não, imprimir mensagem de uso e sair com código 1
     
     // IMPLEMENTE AQUI: verificação de argc e mensagem de erro
-    
+    if(argc != 5)
+    {
+        printf("Parametros invalidos!\n");
+        return 1;
+    }
     // Parsing dos argumentos (após validação)
     const char *target_hash = argv[1];
     int password_len = atoi(argv[2]);
@@ -79,6 +83,21 @@ int main(int argc, char *argv[]) {
     // - password_len deve estar entre 1 e 10
     // - num_workers deve estar entre 1 e MAX_WORKERS
     // - charset não pode ser vazio
+    if(password_len < 1 || password_len > 10)
+    {
+        printf("Erro: Tamanho da senha deve estar entre 1 e 10.\n");
+        return 1;
+    }
+    if(num_workers < 1 || num_workers > MAX_WORKERS)
+    {
+        printf("Erro: Numero de workers deve estar entre 1 e %d.\n", MAX_WORKERS);
+        return 1;
+    }
+    if(charset_len == 0)
+    {
+        printf("Erro: charset vazio.\n");
+        return 1;
+    }
     
     printf("=== Mini-Projeto 1: Quebra de Senhas Paralelo ===\n");
     printf("Hash MD5 alvo: %s\n", target_hash);
@@ -101,8 +120,8 @@ int main(int argc, char *argv[]) {
     // DICA: Use divisão inteira e distribua o resto entre os primeiros workers
     
     // IMPLEMENTE AQUI:
-    // long long passwords_per_worker = ?
-    // long long remaining = ?
+    long long passwords_per_worker = total_space / num_workers;
+    long long remaining = total_space % num_workers;
     
     // Arrays para armazenar PIDs dos workers
     pid_t workers[MAX_WORKERS];
