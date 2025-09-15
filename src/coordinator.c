@@ -122,6 +122,7 @@ int main(int argc, char *argv[]) {
     // IMPLEMENTE AQUI:
     long long passwords_per_worker = total_space / num_workers;
     long long remaining = total_space % num_workers;
+    long long current_index = 0;
     
     // Arrays para armazenar PIDs dos workers
     pid_t workers[MAX_WORKERS];
@@ -131,38 +132,45 @@ int main(int argc, char *argv[]) {
     
     // IMPLEMENTE AQUI: Loop para criar workers
     for (int i = 0; i < num_workers; i++) {
-        // TODO: Calcular intervalo de senhas para este worker
-        if (remaining != 0 && i == num_workers){
-            int start_index = 1 + passwords_per_worker*i;
-            int end_index = start_index + passwords_per_worker - 1 + remaining;
-        }
-        else{
-            int start_index = 1 + passwords_per_worker*i;
-            int end_index = start_index + passwords_per_worker - 1;
+        long long passwords_to_check = passwords_per_worker;
+        if (i < remaining) {
+            passwords_to_check++;
         }
         
-        // TODO: Converter indices para senhas de inicio e fim
         char start_password[password_len + 1];
         char end_password[password_len + 1];
-        index_to_password(start_index, charset, charset_len, password_len, start_password);
-        index_to_password(end_index, charset, charset_len, password_len, end_password);
+        
+        index_to_password(current_index, charset, charset_len, password_len, start_password);
+        index_to_password(current_index + passwords_to_check - 1, charset, charset_len, password_len, end_password);
+        
+        // TODO: Converter indices para senhas de inicio e fim
+        char password_len_str[10];
+        char worker_id_str[10];
+        sprintf(password_len_str, "%d", password_len);
+        sprintf(worker_id_str, "%d", i);
+
         // TODO 4: Usar fork() para criar processo filho
         pid_t pid = fork();
+        
+        // TODO 7: Tratar erros de fork() e execl()
         if (pid < 0) {
             perror("fork failed");
+            exit(1);
         }
-        // TODO 5: No processo pai: armazenar PID
-        if (pid > 0){
-            pid_t workers[i] = pid;
-        }
+        
         // TODO 6: No processo filho: usar execl() para executar worker
-        else if (pid == 0){
-            execl("./src/worker", "worker", "target_hash", "start_password", "end_password", "charset", "password_len", "worker[i]");
+        else if (pid == 0) {
+            execl("./worker", "worker", target_hash, start_password, end_password, charset, password_len_str, worker_id_str, NULL);
             perror("execl failed");
             exit(1);
         }
-        // TODO 7: Tratar erros de fork() e execl()
-    
+        
+        // TODO 5: No processo pai: armazenar PID
+        else {
+            workers[i] = pid;
+            printf("  Worker %d (PID %d): %s até %s\n", i, pid, start_password, end_password);
+        }
+        current_index += passwords_to_check;
     }
     
     printf("\nTodos os workers foram iniciados. Aguardando conclusão...\n");
@@ -171,12 +179,14 @@ int main(int argc, char *argv[]) {
     // IMPORTANTE: O pai deve aguardar TODOS os filhos para evitar zumbis
     
     // IMPLEMENTE AQUI:
-    // - Loop para aguardar cada worker terminar
-    // - Usar wait() para capturar status de saída
-    // - Identificar qual worker terminou
-    // - Verificar se terminou normalmente ou com erro
-    // - Contar quantos workers terminaram
+    int estado;
+    pid_t pidTerminado;
     
+    // O loop continua enquanto wait() retorna o PID de um filho que terminou.
+    // Quando todos os filhos terminarem, wait() retornará -1.
+    while ((pidTerminado = wait(&estado)) > 0) {
+        printf("worker finalizado - PID %d\n", pidTerminado);
+    }
     // Registrar tempo de fim
     time_t end_time = time(NULL);
     double elapsed_time = difftime(end_time, start_time);
@@ -185,16 +195,48 @@ int main(int argc, char *argv[]) {
     
     // TODO 9: Verificar se algum worker encontrou a senha
     // Ler o arquivo password_found.txt se existir
-    
-    // IMPLEMENTE AQUI:
     // - Abrir arquivo RESULT_FILE para leitura
+    int arquivoDescritor = open(RESULT_FILE, O_RDONLY); //variável que identifica o arquivo no sistema
+    
     // - Ler conteúdo do arquivo
-    // - Fazer parse do formato "worker_id:password"
-    // - Verificar o hash usando md5_string()
-    // - Exibir resultado encontrado
+    if (arquivoDescritor >= 0) {
+        char buffer[256];
+        ssize_t bytes = read(arquivoDescritor, buffer, sizeof(buffer) - 1); 
+        
+        if (bytes > 0) {
+            buffer[bytes] = '\0';
+            
+            // - Fazer parse do formato "worker_id:password"
+            char* doisPontos = strchr(buffer, ':'); //ponteiro para procurar os :
+            if (doisPontos != NULL) {
+                *doisPontos = '\0';
+                int workerID = atoi(buffer); //variavel que armazena o worker que encontrou a senha
+                char* senhaEncontrada = doisPontos + 1; //marca o inicio da senha
+                
+                char* novaLinha = strchr(senhaEncontrada, '\n'); //variavel para encontrar a quebra de linha
+                if (novaLinha != NULL) {
+                    *novaLinha = '\0';
+                }
+
+                // - Verificar o hash usando md5_string()
+                char hash_verificado[33];
+                md5_string(senhaEncontrada, hash_verificado); //garante que a senha encontrada é realmente a que procuramos
+
+                // - Exibir resultado encontrado
+                if (strcmp(hash_verificado, target_hash) == 0) {
+                    printf("Senha: %s, foi encontada pelo o worker: %d\n", senhaEncontrada, workerID);
+                } else {
+                    printf("A senha que foi encontada não corresponde");
+                }
+            }
+        }
+        close(arquivoDescritor);
+    } else {
+        printf("Senha não encontrada\n");
+    }
     
     // Estatísticas finais (opcional)
-    // TODO: Calcular e exibir estatísticas de performance
+    printf("tempo de execução para achar a senha: %.5f", elapsed_time);
     
     return 0;
 }
