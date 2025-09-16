@@ -1,6 +1,9 @@
 # Relatório: Mini-Projeto 1 - Quebra-Senhas Paralelo
 
-**Aluno(s):** Nome (Matrícula), Nome (Matrícula),,,  
+**Aluno(s):** 
+Jiye Huang - RA:10438990
+Gustavo Kiyoshi Ikeda - RA:10439179
+Pedro Montarroyos de Pinho - RA:10440213
 ---
 
 ## 1. Estratégia de Paralelização
@@ -8,18 +11,21 @@
 
 **Como você dividiu o espaço de busca entre os workers?**
 
-[Explique seu algoritmo de divisão]
+Pegamos o numero total de senhas e dividimos por numero de workers
 
 **Código relevante:** Cole aqui a parte do coordinator.c onde você calcula a divisão:
 ```c
 // Cole seu código de divisão aqui
 ```
-
+long long passwords_per_worker = total_space / num_workers;
+long long remaining = total_space % num_workers;
 ---
 
 ## 2. Implementação das System Calls
 
 **Descreva como você usou fork(), execl() e wait() no coordinator:**
+pinho - falar como funciona wait() no código
+Depois de dar o fork se ele retornar 0 , é filho, ele vai executar o worker se for maior que 0, é pai, guardará esse valor em um array de pids , para sinclonizar ...
 
 [Explique em um parágrafo como você criou os processos, passou argumentos e esperou pela conclusão]
 
@@ -27,18 +33,29 @@
 ```c
 // Cole aqui seu loop de criação de workers
 ```
+pid_t pid = fork();
 
+if (pid < 0) {
+        perror("fork failed");
+        exit(1);
+}
+       
+else if (pid == 0) {
+        execl("./worker", "worker", target_hash, start_password, end_password, charset, password_len_str, worker_id_str, NULL);
+        perror("execl failed");
+        exit(1);
+}
 ---
 
 ## 3. Comunicação Entre Processos
 
 **Como você garantiu que apenas um worker escrevesse o resultado?**
-
+pinho
 [Explique como você implementou uma escrita atômica e como isso evita condições de corrida]
 Leia sobre condições de corrida (aqui)[https://pt.stackoverflow.com/questions/159342/o-que-%C3%A9-uma-condi%C3%A7%C3%A3o-de-corrida]
 
 **Como o coordinator consegue ler o resultado?**
-
+pinho
 [Explique como o coordinator lê o arquivo de resultado e faz o parse da informação]
 
 ---
@@ -49,12 +66,12 @@ O speedup é o tempo do teste com 1 worker dividido pelo tempo com 4 workers.
 
 | Teste | 1 Worker | 2 Workers | 4 Workers | Speedup (4w) |
 |-------|----------|-----------|-----------|--------------|
-| Hash: 202cb962ac59075b964b07152d234b70<br>Charset: "0123456789"<br>Tamanho: 3<br>Senha: "123" | ___s | ___s | ___s | ___ |
-| Hash: 5d41402abc4b2a76b9719d911017c592<br>Charset: "abcdefghijklmnopqrstuvwxyz"<br>Tamanho: 5<br>Senha: "hello" | ___s | ___s | ___s | ___ |
+| Hash: 202cb962ac59075b964b07152d234b70<br>Charset: "0123456789"<br>Tamanho: 3<br>Senha: "123" | 0.007s | 0.007s | 0.010s | 0.009 |
+| Hash: 5d41402abc4b2a76b9719d911017c592<br>Charset: "abcdefghijklmnopqrstuvwxyz"<br>Tamanho: 5<br>Senha: "hello" | ___s | ____s | ___s | ___ |
 
 **O speedup foi linear? Por quê?**
 [Analise se dobrar workers realmente dobrou a velocidade e explique o overhead de criar processos]
-
+não sei responder bem
 ---
 
 ## 5. Desafios e Aprendizados
