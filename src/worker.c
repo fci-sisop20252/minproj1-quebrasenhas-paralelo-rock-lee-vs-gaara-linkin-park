@@ -156,9 +156,6 @@ int main(int argc, char *argv[]) {
             {
                 printf("Arquivo existe\n");
                 break;
-            } else 
-            {
-                printf("Arquivo não existe\n");
             }
         }
         // TODO 4: Calcular o hash MD5 da senha atual
