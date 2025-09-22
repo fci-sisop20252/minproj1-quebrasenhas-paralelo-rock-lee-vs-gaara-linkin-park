@@ -50,13 +50,11 @@ else if (pid == 0) {
 ## 3. Comunicação Entre Processos
 
 **Como você garantiu que apenas um worker escrevesse o resultado?**
-pinho
-[Explique como você implementou uma escrita atômica e como isso evita condições de corrida]
+[A escrita é feita por um único  worker.c através da chamada open. Em que eu utilizei as flags CREAT e EXCL. A CREAT faz com que o sistema tente  criar um arquivo se ele não existir e a EXCL garante que isso não ira acontecer se o arquivo já existir.  Dessa forma, o primeiro worker que encontrar a senha e tentar criar o arquivo password_found conseguirá e o próximo worker que também encontrar a senha e tentar criar o arquivo logo em seguida, não será possível. Isso evita a condição de corrida e garante que apenas a primeira senha encontrada seja registrada.]
 Leia sobre condições de corrida (aqui)[https://pt.stackoverflow.com/questions/159342/o-que-%C3%A9-uma-condi%C3%A7%C3%A3o-de-corrida]
 
 **Como o coordinator consegue ler o resultado?**
-pinho
-[Explique como o coordinator lê o arquivo de resultado e faz o parse da informação]
+[O coordenador consegue ler o resultado através de duas etapas, primeiro, depois da conclusão de todos os workers, ele abre o arquivo password_found em modo de leitura e copia seu conteúdo para um buffer usando. Em seguida, faz o parsing da string formato separando o ID e a senha, e por fim recalcula o hash da senha obtida com md5_string para compará-lo ao hash salvo, validando o resultado.]
 
 ---
 
