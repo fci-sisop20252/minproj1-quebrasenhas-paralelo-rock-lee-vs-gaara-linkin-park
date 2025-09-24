@@ -18,8 +18,6 @@ Pegamos o numero total de senhas e dividimos por numero de workers
 long long passwords_per_worker = total_space / num_workers;
 long long remaining = total_space % num_workers;
 ```
-long long passwords_per_worker = total_space / num_workers;
-long long remaining = total_space % num_workers;
 ---
 
 ## 2. Implementação das System Calls
@@ -42,18 +40,6 @@ else if (pid == 0) {
         exit(1);
 }
 ```
-pid_t pid = fork();
-
-if (pid < 0) {
-        perror("fork failed");
-        exit(1);
-}
-       
-else if (pid == 0) {
-        execl("./worker", "worker", target_hash, start_password, end_password, charset, password_len_str, worker_id_str, NULL);
-        perror("execl failed");
-        exit(1);
-}
 ---
 
 ## 3. Comunicação Entre Processos
