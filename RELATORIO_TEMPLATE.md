@@ -15,7 +15,8 @@ Pegamos o numero total de senhas e dividimos por numero de workers
 
 **Código relevante:** Cole aqui a parte do coordinator.c onde você calcula a divisão:
 ```c
-// Cole seu código de divisão aqui
+long long passwords_per_worker = total_space / num_workers;
+long long remaining = total_space % num_workers;
 ```
 long long passwords_per_worker = total_space / num_workers;
 long long remaining = total_space % num_workers;
@@ -28,7 +29,18 @@ O coordinator usa a chamada de sistema fork para criar um processo filho para ca
 
 **Código do fork/exec:**
 ```
-// Cole aqui seu loop de criação de workers
+pid_t pid = fork();
+
+if (pid < 0) {
+        perror("fork failed");
+        exit(1);
+}
+       
+else if (pid == 0) {
+        execl("./worker", "worker", target_hash, start_password, end_password, charset, password_len_str, worker_id_str, NULL);
+        perror("execl failed");
+        exit(1);
+}
 ```
 pid_t pid = fork();
 
