@@ -89,7 +89,7 @@ time ./coordinator "5d41402abc4b2a76b9719d911017c592" 5 "abcdefghijklmnopqrstuvw
 ---
 
 **Checklist de Entrega:**
-- [ ] Código compila sem erros
-- [ ] Todos os TODOs foram implementados
-- [ ] Testes passam no `./tests/simple_test.sh`
-- [ ] Relatório preenchido
+- [✅] Código compila sem erros
+- [✅] Todos os TODOs foram implementados
+- [✅] Testes passam no `./tests/simple_test.sh`
+- [✅] Relatório preenchido
