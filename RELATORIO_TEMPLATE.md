@@ -59,12 +59,12 @@ O speedup é o tempo do teste com 1 worker dividido pelo tempo com 4 workers.
 
 | Teste | 1 Worker | 2 Workers | 4 Workers | Speedup (4w) |
 |-------|----------|-----------|-----------|--------------|
-| Hash: 202cb962ac59075b964b07152d234b70<br>Charset: "0123456789"<br>Tamanho: 3<br>Senha: "123" | 0.007s | 0.007s | 0.010s | 0.009 |
-| Hash: 5d41402abc4b2a76b9719d911017c592<br>Charset: "abcdefghijklmnopqrstuvwxyz"<br>Tamanho: 5<br>Senha: "hello" | ___s | ____s | ___s | ___ |
+| Hash: 202cb962ac59075b964b07152d234b70<br>Charset: "0123456789"<br>Tamanho: 3<br>Senha: "123" | 0.007s | 0.007s | 0.010s | 2 |
+| Hash: 5d41402abc4b2a76b9719d911017c592<br>Charset: "abcdefghijklmnopqrstuvwxyz"<br>Tamanho: 5<br>Senha: "hello" | _4.618__s | __8.133__s | _1.942__s | _5.7__ |
 
 **O speedup foi linear? Por quê?**
-[Analise se dobrar workers realmente dobrou a velocidade e explique o overhead de criar processos]
-não sei responder bem
+[O speedup não foi linear, pois a otimização do programa é limitada a parte não paralelizavel do código, de acordo com a Lei de Amdahl, assim tendo que ser executada de maneira sequencial]
+
 ---
 
 ## 5. Desafios e Aprendizados

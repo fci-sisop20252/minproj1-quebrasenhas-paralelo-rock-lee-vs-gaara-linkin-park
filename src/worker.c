@@ -154,7 +154,6 @@ int main(int argc, char *argv[]) {
         {
             if (access(RESULT_FILE, F_OK) == 0) 
             {
-                printf("Arquivo existe\n");
                 break;
             }
         }
