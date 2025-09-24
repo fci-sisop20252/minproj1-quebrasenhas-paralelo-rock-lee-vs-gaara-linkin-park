@@ -69,7 +69,7 @@ O speedup é o tempo do teste com 1 worker dividido pelo tempo com 4 workers.
 
 ## 5. Desafios e Aprendizados
 **Qual foi o maior desafio técnico que você enfrentou?**
-[Tivemos maior dificuldade durante a criação de novos processos com o fork para evitar um fork bomb, assim foi criado um loop que cria apenas a quantidade de workers desejada e logo em seguida designando a tarefa do worker para o novo filho criado]
+[Tivemos maior dificuldade durante a criação de novos processos com o fork para evitar um fork bomb, assim foi criado um loop que cria apenas a quantidade de workers desejada e logo em seguida designa a tarefa do worker para o novo filho criado]
 
 ---
 
